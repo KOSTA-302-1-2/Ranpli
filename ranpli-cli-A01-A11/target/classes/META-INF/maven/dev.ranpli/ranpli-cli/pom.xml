@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>dev.ranpli</groupId>
+  <artifactId>ranpli-cli</artifactId>
+  <version>0.5.0</version>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <jackson.version>2.17.2</jackson.version>
+    <okhttp.version>4.12.0</okhttp.version>
+    <javafx.version>21.0.3</javafx.version>
+  </properties>
+
+  <dependencies>
+    <!-- HTTP/JSON -->
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${okhttp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- MySQL JDBC -->
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>9.0.0</version>
+    </dependency>
+
+    <!-- JavaFX (OpenJFX, JDK 11+에서 필요) -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+      <!-- JLine: 키 입력을 raw로 읽고 화면 제어 (Windows/Cmd/PowerShell OK) -->
+    <dependency>
+    <groupId>org.jline</groupId>
+    <artifactId>jline</artifactId>
+    <version>3.25.1</version>
+  </dependency>
+    <dependency>
+    <groupId>net.java.dev.jna</groupId>
+    <artifactId>jna</artifactId>
+    <version>5.13.0</version>
+  </dependency>
+  <dependency>
+    <groupId>net.java.dev.jna</groupId>
+    <artifactId>jna-platform</artifactId>
+    <version>5.13.0</version>
+  </dependency>
+  <dependency>
+  <groupId>org.jline</groupId>
+  <artifactId>jline-terminal</artifactId>
+  <version>3.25.1</version>
+</dependency>
+
+<dependency>
+  <groupId>org.jline</groupId>
+  <artifactId>jline-reader</artifactId>
+  <version>3.25.1</version>
+</dependency>
+<dependency>
+  <groupId>net.java.dev.jna</groupId>
+  <artifactId>jna-platform</artifactId>
+  <version>5.13.0</version>
+</dependency>
+  </dependencies>
+
+
+  <build>
+    <plugins>
+      <!-- Java 컴파일러 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>17</release>
+        </configuration>
+      </plugin>
+
+      <!-- mainClass 실행용 -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>cli.ui.CliApp</mainClass>
+        </configuration>
+      </plugin>
+          <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <source>17</source>
+        <target>17</target>
+        <encoding>UTF-8</encoding>
+      </configuration>
+    </plugin>
+
+    <!-- 메인 클래스 실행용 -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.2.0</version>
+      <configuration>
+        <mainClass>cli.ui.CliApp</mainClass>
+      </configuration>
+    </plugin>
+    </plugins>
+  </build>
+</project>
