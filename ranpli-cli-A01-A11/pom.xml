@@ -114,7 +114,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>cli.ui.CliApp</mainClass>
+          <mainClass>cli.ui.MainView</mainClass>
         </configuration>
       </plugin>
           <plugin>
@@ -134,7 +134,7 @@
       <artifactId>exec-maven-plugin</artifactId>
       <version>3.2.0</version>
       <configuration>
-        <mainClass>cli.ui.CliApp</mainClass>
+        <mainClass>cli.ui.MainView</mainClass>
       </configuration>
     </plugin>
     </plugins>
