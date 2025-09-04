@@ -3,28 +3,30 @@ package user.service;
 import java.sql.SQLException;
 import java.util.List;
 
+import playlist.dto.PlaylistDetailDTO;
 import user.Exception.UserIdInvalidException;
+import user.Exception.UserInvalidException;
 import user.Exception.UserNotFoundException;
 import user.Exception.UserPwdInvalidException;
 
 import user.dao.UserDAO;
 import user.dao.UserDAOImpl;
-import user.dto.PlaylistDetailDTO;
 import user.dto.UserDTO;
 
 import user.session.Session;
 import user.session.SessionSet;
 
 public class UserService {
-	static UserDAO userDao = new UserDAOImpl();
+	private UserDAO userDao = new UserDAOImpl();
 	
-	public void account (String userId, String userPwd) throws UserNotFoundException {
+	public void account (String userId, String userPwd) throws 
+			UserInvalidException {
 		try {
 			userDao.account(userId, userPwd);
 		} catch (UserIdInvalidException e) {
-			throw new UserNotFoundException("아이디를 다시 입력해주세요.");
+			throw new UserInvalidException("아이디를 다시 입력해주세요.");
 		} catch (UserPwdInvalidException e) {
-			throw new UserNotFoundException("비밀번호를 다시 입력해주세요.");
+			throw new UserInvalidException("비밀번호를 다시 입력해주세요.");
 		} catch (Exception e) {
 			System.out.println("회원가입에 문제가 있습니다.");
 			e.printStackTrace();
@@ -48,6 +50,7 @@ public class UserService {
 		
 		Session session = new Session(userId);
 		session.setAttribute("playList", user.getPlaylistDetailList());
+		session.setAttribute("user", user);
 		
 		SessionSet sessionSet = SessionSet.getInstance();
 		sessionSet.addSet(session);
@@ -57,12 +60,12 @@ public class UserService {
 	
 	public List<PlaylistDetailDTO> getPlayList (String userId) {
 		SessionSet ss = SessionSet.getInstance();
-		for (Session s : ss.getSet()) {
-			if (s.getSessionId() == userId) {
-				return (List<PlaylistDetailDTO>) s.getAttributes().get("playList");
-			}
-		}
+		Session session = ss.get(userId);
 		
+		if (session != null) {
+			return (List<PlaylistDetailDTO>) session.getAttributes().get("playList");
+		}
+
 		return null;
 	}
 }

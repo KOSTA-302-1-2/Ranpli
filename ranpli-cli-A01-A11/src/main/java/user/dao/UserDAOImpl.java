@@ -5,14 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import app.db.Db;
-
+import playlist.dto.PlaylistDetailDTO;
 import user.Exception.UserIdInvalidException;
 import user.Exception.UserPwdInvalidException;
-import user.dto.PlaylistDetailDTO;
 import user.dto.UserDTO;
 
 public class UserDAOImpl implements UserDAO {
@@ -33,12 +30,7 @@ public class UserDAOImpl implements UserDAO {
 		
 		String sql = "INSERT INTO tb_users"
 				+ 			"(users_id, users_pwd, users_reg_date)"
-				+ 			"VALUES(?, ?, ?)";
-		
-		LocalDate now = LocalDate.now();
-		DateTimeFormatter formatter = 
-				DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		
+				+ 			"VALUES(?, ?, now())";
 		
 		if (userId.length() > idLengthLimit) {
 			throw new UserIdInvalidException("아이디의 길이는 20자 이하여야 합니다.");
@@ -55,7 +47,6 @@ public class UserDAOImpl implements UserDAO {
 			ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, userId);
 			ps.setString(2, userPwd);
-			ps.setString(3, now.format(formatter));
 			
 			result = ps.executeUpdate();
 			

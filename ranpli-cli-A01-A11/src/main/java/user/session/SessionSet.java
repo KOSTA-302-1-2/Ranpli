@@ -36,4 +36,9 @@ public class SessionSet {
 	public void removeFromSet(Session session) {
 		set.remove(session);
 	}
+	
+	@Override
+	public String toString() {
+		return this.set.toString();
+	}
 }

@@ -2,9 +2,10 @@ package user.controller;
 
 import java.util.List;
 
+import playlist.dto.PlaylistDetailDTO;
 import user.Exception.PlayListNullException;
+import user.Exception.UserInvalidException;
 import user.Exception.UserNotFoundException;
-import user.dto.PlaylistDetailDTO;
 import user.dto.UserDTO;
 
 import user.service.UserService;
@@ -17,7 +18,7 @@ public class UserController {
 	public static void account(String userId, String userPwd) {
 		try {
 			userService.account(userId, userPwd);
-		} catch (UserNotFoundException e) {
+		} catch (UserInvalidException e) {
 			e.printStackTrace();
 		}
 	}

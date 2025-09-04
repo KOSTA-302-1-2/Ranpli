@@ -1,4 +1,4 @@
-package user.dto;
+package playlist.dto;
 
 public class PlaylistDetailDTO {
 	// tb_playlist_detail 속성
