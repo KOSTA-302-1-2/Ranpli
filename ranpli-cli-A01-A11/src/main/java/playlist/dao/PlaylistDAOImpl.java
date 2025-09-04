@@ -7,9 +7,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import app.db.Db;
-import playlist.Exception.DuplicateMusicException;
 import playlist.dto.PlaylistDetailDTO;
-
+import playlist.exception.DuplicateMusicException;
 import user.dto.UserDTO;
 import user.session.Session;
 import user.session.SessionSet;

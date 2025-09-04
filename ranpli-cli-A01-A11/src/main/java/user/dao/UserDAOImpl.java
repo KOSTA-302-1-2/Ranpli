@@ -8,9 +8,9 @@ import java.sql.Statement;
 
 import app.db.Db;
 import playlist.dto.PlaylistDetailDTO;
-import user.Exception.UserIdInvalidException;
-import user.Exception.UserPwdInvalidException;
 import user.dto.UserDTO;
+import user.exception.UserIdInvalidException;
+import user.exception.UserPwdInvalidException;
 
 public class UserDAOImpl implements UserDAO {
 	private final static int idLengthLimit = 20;
@@ -68,6 +68,7 @@ public class UserDAOImpl implements UserDAO {
 			con.rollback();
 		} catch (Exception e) {
 			e.printStackTrace();
+			con.rollback();
 		} finally {
 			con.commit();
 			Db.releaseConnection(con, ps);

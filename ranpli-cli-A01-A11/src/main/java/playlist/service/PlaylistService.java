@@ -1,10 +1,10 @@
 package playlist.service;
 
 import java.sql.SQLException;
-import playlist.Exception.DuplicateMusicException;
 
 import playlist.dao.PlaylistDAO;
 import playlist.dao.PlaylistDAOImpl;
+import playlist.exception.DuplicateMusicException;
 
 public class PlaylistService {
 	private PlaylistDAO playlistDao = new PlaylistDAOImpl();

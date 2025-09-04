@@ -3,7 +3,7 @@ package playlist.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import playlist.Exception.DuplicateMusicException;
+import playlist.exception.DuplicateMusicException;
 
 
 public interface PlaylistDAO {

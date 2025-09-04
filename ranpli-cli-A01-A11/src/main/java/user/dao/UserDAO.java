@@ -2,10 +2,9 @@ package user.dao;
 
 import java.sql.SQLException;
 
-import user.Exception.UserIdInvalidException;
-import user.Exception.UserPwdInvalidException;
-
 import user.dto.UserDTO;
+import user.exception.UserIdInvalidException;
+import user.exception.UserPwdInvalidException;
 
 public interface UserDAO {
 	/**

@@ -1,4 +1,4 @@
-package playlist.Exception;
+package playlist.exception;
 
 public class DuplicateMusicException extends Exception {
 

@@ -3,11 +3,10 @@ package user.controller;
 import java.util.List;
 
 import playlist.dto.PlaylistDetailDTO;
-import user.Exception.PlayListNullException;
-import user.Exception.UserInvalidException;
-import user.Exception.UserNotFoundException;
 import user.dto.UserDTO;
-
+import user.exception.PlayListNullException;
+import user.exception.UserInvalidException;
+import user.exception.UserNotFoundException;
 import user.service.UserService;
 import user.session.Session;
 import user.session.SessionSet;

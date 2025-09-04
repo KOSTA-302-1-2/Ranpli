@@ -3,6 +3,7 @@ package user.dto;
 import java.util.Scanner;
 
 import playlist.controller.PlaylistController;
+import search.controller.MusicSearchController;
 import user.controller.UserController;
 import user.session.SessionSet;
 
@@ -35,7 +36,10 @@ public class UserTempMainVIew {
 		UserController.getPlayList(userId);
 		
 		// 플레이 리스트에 음악 추가 테스트
-		PlaylistController.saveMusicToPlaylist(userId, 15);
+		PlaylistController.saveMusicToPlaylist(userId, 16);
+		
+		// 음악 검색 테스트
+		MusicSearchController.searchMusic("e");
 		
 		// 로그아웃 테스트
 		UserController.logout(userId);

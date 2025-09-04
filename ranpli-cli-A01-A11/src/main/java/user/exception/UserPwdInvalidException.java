@@ -1,4 +1,4 @@
-package user.Exception;
+package user.exception;
 
 public class UserPwdInvalidException extends Exception {
 

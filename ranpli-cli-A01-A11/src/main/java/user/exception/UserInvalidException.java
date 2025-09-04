@@ -1,4 +1,4 @@
-package user.Exception;
+package user.exception;
 
 public class UserInvalidException extends Exception {
 
