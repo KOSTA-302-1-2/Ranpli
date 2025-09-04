@@ -3,8 +3,8 @@ package user.dto;
 public class PlaylistDetailDTO {
 	// tb_playlist_detail 속성
 	private int playlistDetailNo;
-	private int UserNo;
-	private int musicSaveTime;
+	private int userNo;
+	private String musicSaveTime;
 	
 	// tb_music 속성
 	private int musicNo;
@@ -15,6 +15,21 @@ public class PlaylistDetailDTO {
 	private String musicAlbum;
 	private String musicUrl;
 	
+	
+	public PlaylistDetailDTO(int musicNo, int userNo, int playlistDetailNo, String musicSaveTime,  String musicTitle, 
+			String musicArtist, String musicAlbum, int isBeforeMusic, String musicUrl) {
+		super();
+		this.musicNo = musicNo;
+		this.userNo = userNo;
+		this.playlistDetailNo = playlistDetailNo;
+		this.musicSaveTime = musicSaveTime;
+		this.musicTitle = musicTitle;
+		this.musicArtist = musicArtist;
+		this.musicAlbum = musicAlbum;
+		this.isBeforeMusic = isBeforeMusic;
+		this.musicUrl = musicUrl;
+	}
+
 	public int getPlaylistDetailNo() {
 		return playlistDetailNo;
 	}
@@ -24,18 +39,18 @@ public class PlaylistDetailDTO {
 	}
 	
 	public int getUserNo() {
-		return UserNo;
+		return userNo;
 	}
 	
 	public void setUserNo(int userNo) {
-		UserNo = userNo;
+		this.userNo = userNo;
 	}
 	
-	public int getMusicSaveTime() {
+	public String getMusicSaveTime() {
 		return musicSaveTime;
 	}
 	
-	public void setMusicSaveTime(int musicSaveTime) {
+	public void setMusicSaveTime(String musicSaveTime) {
 		this.musicSaveTime = musicSaveTime;
 	}
 	
@@ -89,10 +104,9 @@ public class PlaylistDetailDTO {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PlaylistDetailDTO [playlistDetailNo=");
 		builder.append(playlistDetailNo);
-		builder.append(", UserNo=");
-		builder.append(UserNo);
+		builder.append(", userNo=");
+		builder.append(userNo);
 		builder.append(", musicSaveTime=");
 		builder.append(musicSaveTime);
 		builder.append(", musicNo=");
@@ -107,7 +121,7 @@ public class PlaylistDetailDTO {
 		builder.append(musicAlbum);
 		builder.append(", musicUrl=");
 		builder.append(musicUrl);
-		builder.append("]");
+		builder.append("\n");
 		return builder.toString();
 	}
 }

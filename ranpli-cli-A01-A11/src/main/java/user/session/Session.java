@@ -46,11 +46,10 @@ public class Session {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Session [sessionId=");
+		builder.append("sessionId=");
 		builder.append(sessionId);
-		builder.append(", attributes=");
+		builder.append(", attributes= \n");
 		builder.append(attributes);
-		builder.append("]");
 		return builder.toString();
 	}
 

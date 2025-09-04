@@ -1,6 +1,10 @@
 package user.controller;
 
+import java.util.List;
+
+import user.Exception.PlayListNullException;
 import user.Exception.UserNotFoundException;
+import user.dto.PlaylistDetailDTO;
 import user.dto.UserDTO;
 
 import user.service.UserService;
@@ -21,7 +25,6 @@ public class UserController {
 	public static void login(String userId, String userPwd) {
 		try {
 			UserDTO user = userService.login(userId, userPwd);
-			System.out.println(user);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -31,5 +34,18 @@ public class UserController {
 		Session session = new Session(userId);
 		SessionSet ss = SessionSet.getInstance();
 		ss.removeFromSet(session);
+	}
+	
+	public static void getPlayList(String userId) {
+		List<PlaylistDetailDTO> playList = userService.getPlayList(userId);
+		if (playList == null) {
+			// do something error task
+		}
+		
+		else {
+			for (PlaylistDetailDTO pdd : playList) {
+				System.out.println(pdd);
+			}
+		}
 	}
 }

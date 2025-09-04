@@ -1,6 +1,6 @@
 package user.dto;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDTO {
@@ -9,7 +9,7 @@ public class UserDTO {
 	private String userPwd;
 	private String userRegDate;
 	private String userDeleteDate;
-	private List<PlaylistDetailDTO> playlistDetailList;
+	private List<PlaylistDetailDTO> playlistDetailList = new ArrayList<>();
 	
 	public UserDTO(int userNO, String userId, String userPwd, String userRegDate) {
 		this.userNO = userNO;
