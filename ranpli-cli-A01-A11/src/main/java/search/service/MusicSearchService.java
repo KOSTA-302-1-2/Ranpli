@@ -10,16 +10,24 @@ import search.exception.EmptySearchMusicException;
 public class MusicSearchService {
 	private MusicSearchDAO musicSearchDao  = new MusicSearchDAOImpl();
 	
-	public void searchMusic (String context) throws EmptySearchMusicException{
+	public List<SearchedMusicDTO> searchMusic (String context) throws EmptySearchMusicException{
 		try {
 			List<SearchedMusicDTO> searchedMusicList = musicSearchDao.searchMusic(context);
 			
-			for (SearchedMusicDTO smd : searchedMusicList) {
-				System.out.println(smd);
-			}
+			return searchedMusicList;
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		return null;
+	}
+	
+	public SearchedMusicDTO pickRandom (String context) throws EmptySearchMusicException{
+		List<SearchedMusicDTO> searchedMusicList = searchMusic(context);
+		
+		int randomIdx = (int) (Math.random() * searchedMusicList.size());
+		
+		return searchedMusicList.get(randomIdx);
 	}
 }
