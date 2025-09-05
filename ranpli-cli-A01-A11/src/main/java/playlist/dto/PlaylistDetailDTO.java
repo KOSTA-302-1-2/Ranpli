@@ -104,24 +104,11 @@ public class PlaylistDetailDTO {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(playlistDetailNo);
-		builder.append(", userNo=");
-		builder.append(userNo);
-		builder.append(", musicSaveTime=");
-		builder.append(musicSaveTime);
-		builder.append(", musicNo=");
-		builder.append(musicNo);
-		builder.append(", isBeforeMusic=");
-		builder.append(isBeforeMusic);
-		builder.append(", musicTitle=");
-		builder.append(musicTitle);
-		builder.append(", musicArtist=");
-		builder.append(musicArtist);
-		builder.append(", musicAlbum=");
-		builder.append(musicAlbum);
-		builder.append(", musicUrl=");
-		builder.append(musicUrl);
-		builder.append("\n");
+		builder.append(this.musicTitle);
+		builder.append(" / ");
+		builder.append(this.musicArtist);
+		builder.append(" / ");
+		builder.append(this.musicAlbum);
 		return builder.toString();
 	}
 }

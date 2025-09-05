@@ -1,9 +1,9 @@
 package cli.ui;
 
-import cli.ui.UserSession;
-import cli.ui.*;
-
+import java.util.List;
 import java.util.Scanner;
+
+import playlist.dto.PlaylistDetailDTO;
 
 public class ProfileView implements Screen {
     @Override
@@ -18,12 +18,14 @@ public class ProfileView implements Screen {
         }
 
         System.out.println("닉네임 : " + session.getNickname());
-        System.out.println("가입일 : 0000-00-00");
+        System.out.println("가입일 : " + session.getUser().getUserRegDate());
         System.out.println();
-        System.out.println("플레이리스트 (더미)");
-        System.out.println(" - #1 Love wins all / IU");
-        System.out.println(" - #2 Blueming / IU");
-        System.out.println(" - #3 Super Shy / NewJeans");
+        System.out.println("플레이리스트");
+        List<PlaylistDetailDTO> musicList = session.getUser().getPlaylistDetailList();
+        for (int i = 0; i < musicList.size(); i++) {
+        		System.out.print(" - #" + (i+1) + " ");
+        		System.out.println(musicList.get(i));
+        }
         System.out.println();
         System.out.println("[B] 뒤로   [L] 로그아웃(데모)");
         System.out.print("> ");

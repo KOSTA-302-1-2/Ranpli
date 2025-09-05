@@ -10,7 +10,7 @@ public interface UserDAO {
 	/**
 	 * 회원가입
 	 */
-	void account(String userId, String userPwd)
+	void  account(String userId, String userPwd)
 			throws UserIdInvalidException, 
 						UserPwdInvalidException,
 						SQLException;

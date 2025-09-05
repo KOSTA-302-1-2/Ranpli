@@ -57,7 +57,7 @@ public class UserDAOImpl implements UserDAO {
 			else {
 				rs = ps.getGeneratedKeys();
 				if (rs.next()) {
-					userNo = rs.getInt(1);					
+					userNo = rs.getInt(1);
 				}
 			}
 			
@@ -80,12 +80,13 @@ public class UserDAOImpl implements UserDAO {
 		
 		int result = 0;
 		
-		String sql = "INSERT INTO tb_playlist (users_no) values (?)";
+		String sql = "INSERT INTO tb_playlist (playlist_no, users_no) values (?, ?)";
 		
 		try {
 			ps = con.prepareStatement(sql);
 			
 			ps.setInt(1, userNo);
+			ps.setInt(2, userNo);
 			
 			result = ps.executeUpdate();
 			
@@ -151,7 +152,7 @@ public class UserDAOImpl implements UserDAO {
 		
 		String sql = "select * "
 						+ "from tb_users "
-						+ "join tb_playlist_detail "
+						+ "join tb_playlist_detail on users_no = playlist_no "
 						+ "join tb_music using(music_no) "
 						+ "where users_no = ?";
 		

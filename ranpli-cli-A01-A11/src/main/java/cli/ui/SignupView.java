@@ -1,12 +1,13 @@
 package cli.ui;
 
-import cli.ui.UserSession;
-import cli.ui.*;
-
 import java.util.Scanner;
 
+import user.dao.UserDAO;
+import user.dao.UserDAOImpl;
+import user.dto.UserDTO;
+
 public class SignupView implements Screen {
-    private static final boolean DEMO_MODE = true;
+    private static final boolean DEMO_MODE = false;
 
     @Override
     public ViewId render(UserSession session, Scanner sc) {
@@ -36,7 +37,19 @@ public class SignupView implements Screen {
             session.setLoggedIn(true);
             session.setNickname(id.isEmpty() ? "***" : id);
         } else {
-            System.out.println("\n(Stub) 실제 가입 미구현. 메인으로 이동합니다...");
+            UserDAO userDao = new UserDAOImpl();
+            try {
+	            	// 유효성 검증
+	        		userDao.account(id, pw);
+	        		// 실제 로그인
+	        		UserDTO user = userDao.login(id, pw);
+	        		
+	        		session.setLoggedIn(true);
+	        		session.setNickname(user.getUserId());
+	        		session.setUser(user);
+            } catch (Exception e) {
+				System.out.println("회원가입 실패");
+            }
         }
         try { Thread.sleep(900); } catch (Exception ignore) {}
         return ViewId.MAIN_MENU;

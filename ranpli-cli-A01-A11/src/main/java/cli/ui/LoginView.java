@@ -1,13 +1,14 @@
 package cli.ui;
 
-import cli.ui.UserSession;
-import cli.ui.*;
-
 import java.util.Scanner;
+
+import user.dao.UserDAO;
+import user.dao.UserDAOImpl;
+import user.dto.UserDTO;
 
 public class LoginView implements Screen {
     /** 데모 모드: true면 로그인 성공처럼 보이게 in-memory로만 세션 변경 */
-    private static final boolean DEMO_MODE = true;
+    private static final boolean DEMO_MODE = false;
 
     @Override
     public ViewId render(UserSession session, Scanner sc) {
@@ -38,7 +39,17 @@ public class LoginView implements Screen {
             session.setNickname(id.isEmpty() ? "***" : id);
             System.out.println("\n(데모) 로그인 성공! 메인으로 이동합니다...");
         } else {
-            System.out.println("\n(Stub) 실제 로그인 미구현. 메인으로 이동합니다...");
+        		UserDAO userDao = new UserDAOImpl();
+        		try {
+        			// 유효성 검증
+	        		UserDTO user = userDao.login(id, pw);
+	        		// 실제 로그인
+	        		session.setLoggedIn(true);
+	        		session.setNickname(user.getUserId());
+	        		session.setUser(user);
+        		} catch (Exception e) {
+					System.out.println("로그인 실패");
+			}
         }
         try { Thread.sleep(700); } catch (Exception ignore) {}
         return ViewId.MAIN_MENU;
