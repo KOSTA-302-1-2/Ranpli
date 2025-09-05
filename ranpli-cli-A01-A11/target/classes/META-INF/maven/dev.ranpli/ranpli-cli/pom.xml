@@ -94,9 +94,11 @@
   <version>5.13.0</version>
 </dependency>
   </dependencies>
+  
 
 
   <build>
+
     <plugins>
       <!-- Java 컴파일러 -->
       <plugin>
@@ -117,7 +119,7 @@
           <mainClass>cli.ui.CliApp</mainClass>
         </configuration>
       </plugin>
-          <plugin>
+        <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-compiler-plugin</artifactId>
       <version>3.11.0</version>
@@ -134,7 +136,7 @@
       <artifactId>exec-maven-plugin</artifactId>
       <version>3.2.0</version>
       <configuration>
-        <mainClass>cli.ui.CliApp</mainClass>
+        <mainClass>cli.ui.MainView</mainClass>
       </configuration>
     </plugin>
     </plugins>
