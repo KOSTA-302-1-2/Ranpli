@@ -13,7 +13,7 @@ public class LoginView implements Screen {
     @Override
     public ViewId render(UserSession session, Scanner sc) {
     	
-        Layout.header("로그인");
+        Layout.header("                                                            로그인");
 
         System.out.println("아이디");
         System.out.println("────────────────────────────────────────");

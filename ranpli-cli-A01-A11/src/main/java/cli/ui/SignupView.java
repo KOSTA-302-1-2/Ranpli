@@ -11,7 +11,7 @@ public class SignupView implements Screen {
 
     @Override
     public ViewId render(UserSession session, Scanner sc) {
-        Layout.header("회원가입");
+        Layout.header("                                                            회원가입");
 
         System.out.println("아이디");
         System.out.println("────────────────────────────────────────");

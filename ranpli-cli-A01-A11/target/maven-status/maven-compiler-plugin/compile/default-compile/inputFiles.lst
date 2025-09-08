@@ -1,16 +1,51 @@
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\AppleRssClient.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\PlayerController.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\Rui.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\PlaylistView.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\db\Db.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\UserDao.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\TrackDao.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\config\Config.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\AuthProfileView.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\player\AudioPlayerFx.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\RandomEngine.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\AppleSearchClient.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\LoginDao.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\MainView.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\model\Track.java
-C:\edu\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\SearchView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\session\Session.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\controller\UserController.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\UserDao.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\dao\MusicSearchDAO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\dao\PlaylistDAOImpl.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\session\SessionSet.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\AppleRssClient.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\ViewRouter.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\dao\UserDAOImpl.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\dto\UserDTO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\exception\UserPwdInvalidException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\TrackDao.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\config\Config.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\BgmPlayer.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\service\PlaylistService.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\AppleSearchClient.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\MainMenuView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\SignupView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\db\Db.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\UserSession.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\repo\LoginDao.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\dto\PlaylistDetailDTO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\exception\DuplicateMusicException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\LoginView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\PlaylistView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\dao\PlaylistDAO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\exception\EmptySearchMusicException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\exception\UserIdInvalidException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\MainView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\SearchView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\player\AudioPlayerFx.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\exception\UserInvalidException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\service\MusicSearchService.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\playlist\controller\PlaylistController.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\ViewId.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\dao\UserDAO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\exception\UserNotFoundException.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\RandomEngine.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\ui\placeholder\AuthProfileView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\dto\UserTempMainVIew.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\controller\MusicSearchController.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\model\Track.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\RandomPlayView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\app\music\PlayerController.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\ProfileView.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\dto\SearchedMusicDTO.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\search\dao\MusicSearchDAOImpl.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\Layout.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\service\UserService.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\cli\ui\Screen.java
+C:\Users\kkw94\OneDrive - Wonkwang University\문서\Ranpli\ranpli-cli-A01-A11\src\main\java\user\exception\PlayListNullException.java

@@ -4,6 +4,7 @@ import cli.ui.UserSession;
 import cli.ui.*;
 import cli.ui.MainMenuView;
 import cli.ui.RandomPlayView;
+import playlist.controller.PlaylistController;
 // (옵션) Login/Signup/Profile/Search 추가 시 import
 
 import java.util.*;
@@ -11,6 +12,8 @@ import java.util.*;
 public class ViewRouter {
     private final Map<ViewId, Screen> screens = new HashMap<>();
     private final UserSession session;
+    private final PlaylistController playlistController = new PlaylistController();
+
 
     public ViewRouter(UserSession session) {
         this.session = session;
@@ -19,6 +22,9 @@ public class ViewRouter {
         screens.put(ViewId.LOGIN,  new LoginView());
         screens.put(ViewId.SIGNUP, new SignupView());
         screens.put(ViewId.PROFILE,new ProfileView());
+        screens.put(ViewId.SEARCH, new SearchView());
+
+
         //screens.put(ViewId.SEARCH, new SearchView());
     }
 

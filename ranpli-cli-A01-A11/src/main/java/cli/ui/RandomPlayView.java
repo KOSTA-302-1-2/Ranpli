@@ -1,27 +1,29 @@
 package cli.ui;
 
 import cli.ui.UserSession;
-import cli.ui.*;
+import cli.ui.Layout;
+import cli.ui.ViewId;
+
 import app.music.PlayerController;
 import app.music.RandomEngine;
 import app.repo.TrackDao;
 
 import java.util.Scanner;
 
-public class RandomPlayView implements Screen {
+public class RandomPlayView implements cli.ui.Screen {
 
     private final RandomEngine random;
     private final PlayerController player;
 
     public RandomPlayView() {
         var dao = new TrackDao();
-        this.random = new RandomEngine(dao);
-        this.player = new PlayerController();
+        this.random  = new RandomEngine(dao);
+        this.player  = new PlayerController();
     }
 
     @Override
     public ViewId render(UserSession session, Scanner sc) {
-        Layout.header("랜덤 재생");
+        Layout.header("                                                            Random Play");
 
         var track = random.pickOneAndPersist();
         if (track == null) {
@@ -30,18 +32,27 @@ public class RandomPlayView implements Screen {
             return ViewId.MAIN_MENU;
         }
 
-    
+        // 재생 시작
         player.play(track);
 
-  
         try {
-            cli.ui.MainView.NowPlayingSession.runJLine(player, random);
+            // ✅ NowPlayingSession 시그니처 변경에 맞춰 4개 인자 전달
+            //    - session: 저장할 때 사용자 식별자 사용
+            //    - currentMusicNoSupplier: 현재 곡의 DB music_no 제공
+            cli.ui.MainView.NowPlayingSession.runJLine(
+                player,
+                random,
+                session,
+                () -> { // 현재 곡 music_no 추출(Track에 musicNo()가 없으면 0 반환)
+                    var cur = player.current();
+                    try { return (cur != null) ? cur.musicNo() : 0; }
+                    catch (Throwable ignore) { return 0; }
+                }
+            );
         } catch (Throwable t) {
-            // 혹시 접근제어자 문제 시 에러 메시지라도 보고 메인으로 복귀
-            t.printStackTrace();
+            t.printStackTrace(); // 문제가 있어도 메인으로 복귀
         }
 
-        // 재생 세션 종료 후 메인으로 복귀
         return ViewId.MAIN_MENU;
     }
 }

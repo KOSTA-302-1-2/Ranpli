@@ -41,4 +41,9 @@ public class SessionSet {
 	public String toString() {
 		return this.set.toString();
 	}
+
+	public void setSet(Session legacy) {
+		// TODO Auto-generated method stub
+		
+	}
 }

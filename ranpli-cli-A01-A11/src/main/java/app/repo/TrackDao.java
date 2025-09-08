@@ -20,11 +20,11 @@ public class TrackDao {
         """;
     try (Connection c = Db.getConnection();
          PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-      ps.setString(1, title);
-      ps.setString(2, artist);
-      ps.setString(3, album);
-      ps.setInt(4, 0);
-      ps.setString(5, url);
+      ps.setString(1, nvl(title));
+      ps.setString(2, nvl(artist));
+      ps.setString(3, nvl(album));
+      ps.setInt(4, 0); // 미리듣기 아님
+      ps.setString(5, nvl(url));
       ps.executeUpdate();
 
       try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -46,15 +46,15 @@ public class TrackDao {
   public Integer findIdByNaturalKey(String title, String artist, String url) {
     final String q = """
         SELECT music_no
-        FROM tb_music
-        WHERE music_title = ? AND music_artist = ? AND music_url = ?
-        LIMIT 1
+          FROM tb_music
+         WHERE music_title = ? AND music_artist = ? AND music_url = ?
+         LIMIT 1
         """;
     try (Connection c = Db.getConnection();
          PreparedStatement ps = c.prepareStatement(q)) {
-      ps.setString(1, title);
-      ps.setString(2, artist);
-      ps.setString(3, url);
+      ps.setString(1, nvl(title));
+      ps.setString(2, nvl(artist));
+      ps.setString(3, nvl(url));
       try (ResultSet rs = ps.executeQuery()) {
         if (rs.next()) return rs.getInt(1);
         return null;
@@ -63,4 +63,11 @@ public class TrackDao {
       throw new RuntimeException("tb_music 조회 실패: " + e.getMessage(), e);
     }
   }
+
+  /** ▼ 추가: 미리듣기 시작 전, DB에 없다면 넣고 music_no 반환 (SearchView에서 사용) */
+  public int ensurePersistAndGetMusicNo(String title, String artist, String album, String url) {
+    return findOrInsert(title, artist, album, url);
+  }
+
+  private static String nvl(String s) { return (s == null) ? "" : s; }
 }

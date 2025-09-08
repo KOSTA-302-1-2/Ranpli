@@ -15,6 +15,9 @@ public class PlayerController {
   private boolean paused = false;
   private static boolean fxInited = false;
 
+  // ★ 추가: 미리듣기 종료 콜백 훅
+  private Runnable onEnd = null;
+
   private static void initFx() {
     if (fxInited) return;
     new javafx.embed.swing.JFXPanel(); // JavaFX 런타임 초기화
@@ -61,7 +64,24 @@ public class PlayerController {
     stop();
     Media media = new Media(previewUrl);
     player = new MediaPlayer(media);
-    player.setOnEndOfMedia(() -> { /* 30초 끝났을 때 동작 필요하면 여기 */ });
+
+    // ★ 변경: 등록된 onEnd 콜백을 실행
+    player.setOnEndOfMedia(() -> {
+      try { if (onEnd != null) onEnd.run(); }
+      catch (Throwable ignore) {}
+    });
+
     player.play();
+  }
+
+  // ★ 추가: 외부에서 종료 콜백을 설정할 수 있게 공개 메서드 제공
+  public void setOnEndOfMedia(Runnable r) {
+    this.onEnd = r;
+    if (player != null) {
+      player.setOnEndOfMedia(() -> {
+        try { if (onEnd != null) onEnd.run(); }
+        catch (Throwable ignore) {}
+      });
+    }
   }
 }

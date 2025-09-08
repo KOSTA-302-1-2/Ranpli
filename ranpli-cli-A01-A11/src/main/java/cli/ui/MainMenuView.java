@@ -8,7 +8,8 @@ public class MainMenuView implements Screen {
 	
 	   @Override
 	    public ViewId render(UserSession session, Scanner sc) {
-	        Layout.header("RANPLI • MENU");
+	        Layout.header("                                                            RANPLI • MENU");
+
 	        if (!session.isLoggedIn()) {
 	            System.out.println("[A] 회원가입   [L] 로그인   [R] 랜플리   [S] 검색   [Q] 종료");
 	        } else {

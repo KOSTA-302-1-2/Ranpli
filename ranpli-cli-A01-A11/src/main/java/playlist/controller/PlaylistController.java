@@ -1,6 +1,7 @@
 package playlist.controller;
 
 import playlist.service.PlaylistService;
+import playlist.exception.DuplicateMusicException;
 
 public class PlaylistController {
 	private static PlaylistService playlistService = new PlaylistService();

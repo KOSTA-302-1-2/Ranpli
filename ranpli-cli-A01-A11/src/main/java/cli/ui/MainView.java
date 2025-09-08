@@ -8,6 +8,9 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
+import playlist.controller.PlaylistController;
+import playlist.exception.DuplicateMusicException;
+import java.util.function.IntSupplier;
 
 /**
  * 메인 진입 + 공통 로고 + 재생세션(NowPlayingSession) 보관
@@ -198,6 +201,8 @@ public class MainView {
     //  메인(엔트리) : 화면 라우터 실행
     // ─────────────────────────────────────────────────────────────
     public static void main(String[] args) {
+        Layout.forceWindowsUtf8Console();  // Windows 콘솔 코드페이지 UTF-8로
+        Layout.forceUtf8StdStreams();      // System.out / System.err UTF-8 래핑
         try { Config.load(); } catch (Throwable ignore) {}
         try (Terminal term = TerminalBuilder.builder().system(true).jna(true).build()) {
             term.enterRawMode();
@@ -222,7 +227,7 @@ public class MainView {
             "█ ██ "
         };
         
-
+ 
         // 색상
         private static final String FG = COLOR_MAIN;     // 로고 색 (기존 흰색)
         private static final String SH = COLOR_SHADOW;   // 그림자 색
@@ -237,8 +242,8 @@ public class MainView {
         private static final int ORIGIN_COL = 4;   // 화면 왼 여백(칸)
 
         // 프레임 레이트
-        private static final int STEP_SLEEP_MS = 14; // 마리오 이동 1스텝 지연
-        private static final int PIXEL_SLEEP_MS = 6; // 픽셀 찍은 직후 살짝 지연
+        private static final int STEP_SLEEP_MS = 3; // 마리오 이동 1스텝 지연
+        private static final int PIXEL_SLEEP_MS = 5; // 픽셀 찍은 직후 살짝 지연
      // 로고 캔버스 크기 계산(문자칸 기준)
         private static final int ROWS = 8;                        // LOGO_MAP 행
         private static final int COLS = LOGO_MAP[0].length();     // 각 행 길이(문자)
@@ -423,10 +428,32 @@ public class MainView {
     public static class NowPlayingSession {
         private static final int TOTAL_SECONDS = 30;  // 미리듣기 30초
         private static final int TICK_MS = 100;       // 진행바 갱신 주기 100ms
-     // ── EQ 설정 (세로형 막대 그래프)
-        private static final int EQ_BANDS = 12;   // 막대 개수
-        private static final int EQ_MAX   = 15;    // 막대 최대 높이(줄)
-        private static int[] eqLevels = new int[EQ_BANDS]; // 현재 높이 상태
+
+        // ── EQ 설정 (세로형 막대 그래프)
+        private static final int EQ_MAX = 15;        // 막대 최대 높이(줄)
+        private static int[] eqLevels = new int[12]; // 시작 밴드 수(터미널 폭에 맞춰 동적 조정)
+     // ── 한 줄 토스트 메시지 (역상 + 굵게, 중앙 정렬) ─────────────────────────
+        private static void toast(Terminal term, String message, int millis) {
+            try {
+                int width = Math.max(20, term.getWidth());           // 터미널 가로폭
+                String msg = " " + message + " ";
+                int pad = Math.max(0, (width - msg.length()) / 2);   // 중앙 정렬용 좌측 패딩
+                String line = " ".repeat(pad) + msg;
+
+                // 현재 줄 지우고 역상(반전) + 굵게 표시
+                term.writer().print("\r\u001B[2K");                  // 라인 클리어
+                term.writer().print("\u001B[7m\u001B[1m");           // 역상 + 볼드
+                term.writer().print(line);
+                term.writer().print("\u001B[0m");                    // 스타일 리셋
+                term.writer().flush();
+
+                Thread.sleep(millis);
+
+                // 토스트 지우고 원래 진행바/화면 복구는 호출 측에서 drawProgress 등으로 처리
+                term.writer().print("\r\u001B[2K");
+                term.writer().flush();
+            } catch (InterruptedException ignore) {}
+        }
 
 
         // 진행바
@@ -482,56 +509,43 @@ public class MainView {
         }
         static void println(Terminal t, String s){ t.writer().println(s); }
 
-        /**
-         * 기존 재생 루프 (플레이어/랜덤 엔진은 호출 측에서 주입)
-         * player: app.music.PlayerController
-         * random: app.music.RandomEngine
-         */
-        
+        // ── 터미널 폭에 맞춰 EQ 밴드 수 동적 조정
         private static void ensureEqCapacityForTerminal(Terminal t) {
             int cols = Math.max(0, t.getWidth());
-            int desiredBands = Math.max(8, cols / 2); // 최소 8개, 가로폭/2 만큼
+            int desiredBands = Math.max(8, cols / 2); // 최소 8개, 가로폭/2
             if (eqLevels.length != desiredBands) {
                 eqLevels = Arrays.copyOf(eqLevels, desiredBands);
-                // 새로 생긴 슬롯은 0으로 초기화 → 바닥에서부터 차오르는 효과
                 for (int i = 0; i < eqLevels.length; i++) {
                     if (eqLevels[i] < 0 || eqLevels[i] > EQ_MAX) eqLevels[i] = 0;
                 }
             }
         }
-
-        /** 진행바 바로 아래의 EQ 라인을 터미널 폭에 정확히 맞춰 채우기(패딩 포함) */
+        /** 진행바 아래에 EQ 프레임을 폭 가득 채워 그리기 */
         private static void drawVerticalEQFrame(Terminal t) {
-            int cols = Math.max(0, t.getWidth());
-            int bands = eqLevels.length;              // 현재 밴드 수 (터미널 폭 기반)
-            int lineWidth = bands * 2;                // "▇ " 기준 2칸 * 밴드수
-            int pad = Math.max(0, cols - lineWidth);  // 남는 오른쪽 여백
+            int cols  = Math.max(0, t.getWidth());
+            int bands = eqLevels.length;
+            int lineW = bands * 2;                  // "▇ " 2칸 기준
+            int pad   = Math.max(0, cols - lineW);  // 오른쪽 여백
 
-            // 진행바 바로 아래로 1줄 내려감
-            t.writer().print("\u001B[1B");
-            // 위에서 아래로(높은 줄부터) 그리기
+            t.writer().print("\u001B[1B"); // 진행바 줄에서 한 줄 아래로
             for (int row = EQ_MAX; row >= 1; row--) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("\r\u001B[2K"); // 해당 줄 전체 클리어
+                sb.append("\r\u001B[2K");
                 for (int b = 0; b < bands; b++) {
                     sb.append(eqLevels[b] >= row ? "▇ " : "  ");
                 }
-                if (pad > 0) sb.append(" ".repeat(pad)); // 오른쪽 여백도 꽉 채우기
+                if (pad > 0) sb.append(" ".repeat(pad));
                 t.writer().println(sb.toString());
             }
-            // (EQ_MAX + 우리가 내린 1줄) 만큼 위로 올려서 진행바 줄로 복귀
-            t.writer().print("\u001B[" + (EQ_MAX + 1) + "A");
+            t.writer().print("\u001B[" + (EQ_MAX + 1) + "A"); // 원래 진행바 줄로 복귀
             t.flush();
-       
-        
         }
-        
         private static void stepEqLevels() {
             for (int i = 0; i < eqLevels.length; i++) {
                 int delta;
                 double r = Math.random();
-                if (r < 0.10)       delta = (int)(Math.random()*5) - 2; // -2..+2 (가끔 크게)
-                else                delta = (int)(Math.random()*3) - 1; // -1..+1 (보통)
+                if (r < 0.10)       delta = (int)(Math.random()*5) - 2; // -2..+2
+                else                delta = (int)(Math.random()*3) - 1; // -1..+1
                 int v = eqLevels[i] + delta;
                 if (v < 0) v = 0;
                 if (v > EQ_MAX) v = EQ_MAX;
@@ -539,7 +553,16 @@ public class MainView {
             }
         }
 
-        public static void runJLine(app.music.PlayerController player, app.music.RandomEngine random) {
+        /**
+         * 기존 재생 루프 (플레이어/랜덤 엔진은 호출 측에서 주입)
+         * player: app.music.PlayerController
+         * random: app.music.RandomEngine
+         */
+        static void runJLine(app.music.PlayerController player,
+                app.music.RandomEngine random,
+                cli.ui.UserSession session,
+                java.util.function.IntSupplier currentMusicNoSupplier) {
+
             Terminal term = null;
             NonBlockingReader in = null;
 
@@ -553,30 +576,23 @@ public class MainView {
                 term.flush();
                 cli.ui.MainView.printLogoJLine(term);
                 println(term, "============================================================ NOW PLAYING =============================================================");
-                               
-               
+
                 var t = player.current();
                 if (t != null) println(term, "♪ " + t.title() + " - " + t.artist());
                 println(term, "");
-                println(term, "[P] 일시정지/재생   [B] 이전곡   [N] 다음곡 [M] 메뉴");
+                println(term, "[P] 일시정지/재생  [B] 이전곡  [S] 저장  [N] 다음곡  [M] 메뉴");
                 println(term, "");
 
-                var bar = new ProgressBar(TOTAL_SECONDS); 
-             // 터미널 폭에 맞춰 EQ 밴드 수 준비 & 모두 0으로 시작(바닥에서 위로 차오르게)
+                var bar = new ProgressBar(TOTAL_SECONDS);
                 ensureEqCapacityForTerminal(term);
                 Arrays.fill(eqLevels, 0);
 
-
                 while (true) {
-                    // 1) 진행바 갱신
+                    // 1) 진행바 + EQ
                     drawProgress(term, bar.render());
-                 // 터미널 크기 변화 대응(창 너비 바뀌면 밴드 수도 즉시 갱신)
                     ensureEqCapacityForTerminal(term);
-
-                    // 세로 EQ 갱신 및 렌더 (오른쪽 여백까지 꽉 채움)
                     stepEqLevels();
                     drawVerticalEQFrame(term);
-
 
                     // 2) 입력 즉시 처리
                     while (in.ready()) {
@@ -597,7 +613,7 @@ public class MainView {
                                     println(term, "============================================================ NOW PLAYING =============================================================");
                                     println(term, "♪ " + prev.title() + " - " + prev.artist());
                                     println(term, "");
-                                    println(term, "[P] 일시정지/재생   [B] 이전곡   [N] 다음곡 [M] 메뉴");
+                                    println(term, "[P] 일시정지/재생  [B] 이전곡  [S] 저장  [N] 다음곡  [M] 메뉴");
                                     println(term, "");
                                 }
                             }
@@ -612,8 +628,38 @@ public class MainView {
                                     println(term, "============================================================ NOW PLAYING =============================================================");
                                     println(term, "♪ " + next.title() + " - " + next.artist());
                                     println(term, "");
-                                    println(term, "[P] 일시정지/재생   [B] 이전곡   [N] 다음곡 [M] 메뉴");
+                                    println(term, "[P] 일시정지/재생  [B] 이전곡  [S] 저장  [N] 다음곡  [M] 메뉴");
                                     println(term, "");
+                                }
+                            }
+                        
+                            case 's' -> {
+                                int musicNo = (currentMusicNoSupplier != null) ? currentMusicNoSupplier.getAsInt() : 0;
+
+                                if (!session.isLoggedIn() || session.getUser() == null) {
+                                    toast(term, "로그인이 필요합니다", 900);
+                                    NowPlayingSession.drawProgress(term, bar.render());
+                                    break;
+                                }
+                                if (musicNo <= 0) {
+                                    toast(term, "이 항목은 DB에 없어 저장할 수 없습니다", 900);
+                                    NowPlayingSession.drawProgress(term, bar.render());
+                                    break;
+                                }
+
+                                String userId = session.getUser().getUserId();
+                                try {
+                                    playlist.controller.PlaylistController.saveMusicToPlaylist(userId, musicNo);
+                                    var cur = player.current();
+                                    String title  = (cur != null ? cur.title()  : "");
+                                    String artist = (cur != null ? cur.artist() : "");
+                                    toast(term, "✓ 저장되었습니다: " + title + " - " + artist, 1200);
+
+                                    // 진행바/화면 복구
+                                    NowPlayingSession.drawProgress(term, bar.render());
+                                } catch (Exception e) {
+                                    toast(term, "✗ 저장 실패: " + String.valueOf(e.getMessage()), 1200);
+                                    NowPlayingSession.drawProgress(term, bar.render());
                                 }
                             }
                             case 'm' -> { player.stop(); return; }
@@ -633,7 +679,7 @@ public class MainView {
                             println(term, "============================================================ NOW PLAYING =============================================================");
                             println(term, "♪ " + next.title() + " - " + next.artist());
                             println(term, "");
-                            println(term, "[P] 일시정지/재생   [B] 이전곡   [N] 다음곡 [M] 메뉴");
+                            println(term, "[P] 일시정지/재생  [B] 이전곡  [S] 저장  [N] 다음곡  [M] 메뉴");
                             println(term, "");
                         } else {
                             player.stop();
@@ -651,5 +697,114 @@ public class MainView {
                 try { if (term != null) { term.flush(); term.close(); } } catch (Exception ignore) {}
             }
         }
+
+        // ─────────────────────────────────────────────────────────────
+        // 저장 JDBC 헬퍼 (playlistNo로 바로 저장)
+        // ─────────────────────────────────────────────────────────────
+        static final class PlaylistSaver {
+
+            // application.properties 키 (없으면 기본값 사용)
+            private static final String KEY_URL  = "db.url";
+            private static final String KEY_USER = "db.username";
+            private static final String KEY_PASS = "db.password";
+
+            // 기본값(네 RDS 값 유지)
+            private static final String DEF_URL  = "jdbc:mysql://mysql-rds.cby44gcimxld.ap-northeast-2.rds.amazonaws.com:3306/ranpli?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
+            private static final String DEF_USER = "admin";
+            private static final String DEF_PASS = "admin1234";
+
+            /** 현재 트랙을 지정 playlist_no에 저장 */
+            static void saveTrackToPlaylistNo(int playlistNo, Object track) throws Exception {
+                String title  = invokeString(track, "title");
+                String artist = invokeString(track, "artist");
+                String album  = safeInvokeString(track, "album");
+                String url    = firstNonNull(
+                        safeInvokeString(track, "url"),
+                        safeInvokeString(track, "musicUrl"),
+                        safeInvokeString(track, "previewUrl")
+                );
+                if (title == null || artist == null || url == null) {
+                    throw new IllegalStateException("트랙(title/artist/url) 정보가 부족합니다.");
+                }
+
+                java.util.Properties props = new java.util.Properties();
+                try (var in = MainView.class.getClassLoader().getResourceAsStream("application.properties")) {
+                    if (in != null) props.load(in);
+                }
+                String jdbcUrl  = props.getProperty(KEY_URL,  DEF_URL);
+                String jdbcUser = props.getProperty(KEY_USER, DEF_USER);
+                String jdbcPass = props.getProperty(KEY_PASS, DEF_PASS);
+
+                try (java.sql.Connection conn = java.sql.DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass)) {
+                    conn.setAutoCommit(false);
+                    try {
+                        int musicNo = ensureMusic(conn, title, artist, album, url);
+                        addToPlaylistDetail(conn, playlistNo, musicNo);
+                        conn.commit();
+                    } catch (Exception e) {
+                        conn.rollback();
+                        throw e;
+                    }
+                }
+            }
+
+            private static int ensureMusic(java.sql.Connection conn, String title, String artist, String album, String url) throws Exception {
+                String q1 = "SELECT music_no FROM tb_music WHERE music_title=? AND music_artist=? AND music_url=? LIMIT 1";
+                try (var ps = conn.prepareStatement(q1)) {
+                    ps.setString(1, title);
+                    ps.setString(2, artist);
+                    ps.setString(3, url);
+                    try (var rs = ps.executeQuery()) {
+                        if (rs.next()) return rs.getInt(1);
+                    }
+                }
+                String ins = "INSERT INTO tb_music (music_title, music_artist, music_album, music_url) VALUES (?,?,?,?)";
+                try (var ps = conn.prepareStatement(ins, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setString(1, title);
+                    ps.setString(2, artist);
+                    if (album == null || album.isBlank()) ps.setNull(3, java.sql.Types.VARCHAR); else ps.setString(3, album);
+                    ps.setString(4, url);
+                    ps.executeUpdate();
+                    try (var rs = ps.getGeneratedKeys()) {
+                        if (rs.next()) return rs.getInt(1);
+                    }
+                }
+                try (var ps = conn.prepareStatement(q1)) {
+                    ps.setString(1, title);
+                    ps.setString(2, artist);
+                    ps.setString(3, url);
+                    try (var rs = ps.executeQuery()) {
+                        if (rs.next()) return rs.getInt(1);
+                    }
+                }
+                throw new IllegalStateException("tb_music 확보 실패");
+            }
+
+            private static void addToPlaylistDetail(java.sql.Connection conn, int playlistNo, int musicNo) throws Exception {
+                String ins = "INSERT INTO tb_playlist_detail (playlist_no, music_no) VALUES (?, ?)";
+                try (var ps = conn.prepareStatement(ins)) {
+                    ps.setInt(1, playlistNo);
+                    ps.setInt(2, musicNo);
+                    ps.executeUpdate();
+                }
+            }
+
+            // 리플렉션 유틸
+            private static String invokeString(Object obj, String method) throws Exception {
+                var m = obj.getClass().getMethod(method);
+                Object v = m.invoke(obj);
+                return v == null ? null : String.valueOf(v);
+            }
+            private static String safeInvokeString(Object obj, String method) {
+                try { return invokeString(obj, method); } catch (Exception ignore) { return null; }
+            }
+            private static String firstNonNull(String a, String b, String c) {
+                if (a != null && !a.isBlank()) return a;
+                if (b != null && !b.isBlank()) return b;
+                if (c != null && !c.isBlank()) return c;
+                return null;
+            }
+        }
     }
+
 }

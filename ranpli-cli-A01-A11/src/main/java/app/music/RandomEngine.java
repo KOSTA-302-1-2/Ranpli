@@ -34,11 +34,13 @@ public class RandomEngine {
       int musicNo = trackDao.findOrInsert(title, artist, album, prev);
 
       // itunesTrackId 자리에 music_no 사용 (내부 식별용)
-      return new Track(musicNo, title, artist, prev, null);
+      return new Track(musicNo, -1,title, artist, prev, null);
     } catch (Exception e) {
       // 어디서 막히는지 보이도록
       e.printStackTrace();
       return null;
     }
   }
+
+
 }
