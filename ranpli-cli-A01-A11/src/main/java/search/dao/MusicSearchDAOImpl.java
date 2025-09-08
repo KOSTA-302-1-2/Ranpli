@@ -50,9 +50,6 @@ public class MusicSearchDAOImpl implements MusicSearchDAO {
 				searchedMusicList.add(smd);
 			}
 			
-			if (searchedMusicList.isEmpty()) {
-				throw new EmptySearchMusicException("검색 결과가 존재하지 않습니다.");
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
