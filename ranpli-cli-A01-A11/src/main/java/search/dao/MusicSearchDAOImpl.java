@@ -51,7 +51,7 @@ public class MusicSearchDAOImpl implements MusicSearchDAO {
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			
 		} finally {
 			Db.releaseConnection(con, ps, rs);
 		}
