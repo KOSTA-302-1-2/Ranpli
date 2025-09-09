@@ -5,21 +5,18 @@ import search.service.HybridSearchService;
 
 import app.music.PlayerController;
 import app.music.model.Track;
-
-// 저장
 import playlist.controller.PlaylistController;
-// import playlist.exception.DuplicateMusicException; // 컨트롤러가 예외 안 던지면 굳이 필요 없음
+import app.repo.TrackDao;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Random;
+import java.nio.charset.StandardCharsets;
 
-// JLine (논블로킹 키 입력)
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
-
-// ★ 추가: DB에 없을 때 보장 저장용 DAO
-import app.repo.TrackDao;
+import org.jline.utils.InfoCmp;
 
 public class SearchView implements Screen {
 
@@ -27,7 +24,7 @@ public class SearchView implements Screen {
 
     @Override
     public ViewId render(UserSession session, Scanner sc) {
-        Layout.header("                                                            검색");
+        Layout.header("검색");
 
         System.out.print("검색어 입력 (뒤로 가려면 Enter만): ");
         String keyword = sc.nextLine().trim();
@@ -52,132 +49,150 @@ public class SearchView implements Screen {
 
             SearchedMusicDTO sel = results.get(idx);
 
-            // DTO → 값 추출
             String title  = nn(sel.getMusicTitle());
             String artist = nn(sel.getMusicArtist());
             String album  = nn(sel.getMusicAlbum());
             String url    = nn(sel.getMusicUrl());
+            int musicNo   = sel.getMusicNo();
 
-            // musicNo : 검색 결과가 DB에 없으면 0일 수 있음
-            int musicNo = sel.getMusicNo();
-
-            // Track(record) = (musicNo, itunesTrackId, title, artist, previewUrl, artworkUrl)
             Track track = new Track(musicNo, -1L, title, artist, url, null);
 
-            // 미리듣기 화면(무음)으로 전환
             Layout.header("미리듣기");
 
-            // 재생 시작 (터미널 열기 전: System.out 사용 OK)
             try {
                 player.play(track);
                 System.out.printf("▶ 미리듣기 재생: %s - %s%n", artist, title);
-                System.out.println("[P] 일시정지/재개  [N] 다음곡(랜덤 이동)  [S] 저장");
+                // ✅ 메뉴는 나중에 터미널로 출력할 것이라 여기서는 찍지 않음
+                // System.out.println("[P] 일시정지/재개  [N] 다음곡(랜덤 이동)  [S] 저장  [B] 뒤로");
             } catch (Exception e) {
                 System.out.println("미리듣기 재생 중 오류 발생");
                 e.printStackTrace();
                 continue;
             }
 
-            // 31초 동안 논블로킹으로 키 처리(P/N/S)
-            long start = System.currentTimeMillis();
-            long TIMEOUT_MS = 31_000;
+            final long TIMEOUT_MS = 31_000;
+            final long start = System.currentTimeMillis();
 
-            Terminal term = null;
-            NonBlockingReader reader = null;
-            try {
-                term = TerminalBuilder.builder()
-                        .system(true)    // OS 기본 인코딩 사용 (랜덤 화면과 동일)
-                        .jna(true)
+            final int  BAR_W = 42;
+            final int  EQ_N  = 48;
+            final String[] LV = {" ", "▁","▂","▃","▄","▅","▆","▇","█"};
+
+            long lastDraw = 0;
+            final Random rand = new Random();
+
+            try (Terminal term = TerminalBuilder.builder()
+                        .system(true)
+                        .encoding(StandardCharsets.UTF_8)
                         .build();
-                reader = term.reader();
+                 NonBlockingReader reader = term.reader()) {
+
+                // ▼ 1) 프로그레스/EQ 먼저 출력
+                term.writer().println();
+                term.writer().println("│" + " ".repeat(EQ_N) + "│");
+                term.writer().println("00:00 [" + "-".repeat(BAR_W) + "] 00:31");
+
+                // ▼ 2) 앵커(두 줄 아래) 저장 → 이후 갱신은 항상 이 기준으로
+                term.writer().print("\u001B[s");
+                term.writer().flush();
+
+                // ▼ 3) 그 다음 줄에 메뉴 출력(= 프로그레스 아래로 이동)
+                term.writer().println();
+                term.writer().println("[P] 일시정지/재개  [N] 다음곡(랜덤 이동)  [S] 저장  [B] 뒤로");
+                term.writer().flush();
 
                 while (System.currentTimeMillis() - start < TIMEOUT_MS) {
-                    int ch = reader.read(200); // 200ms 대기
-                    if (ch == -1) continue;
-
-                    char c = Character.toLowerCase((char) ch);
-                    if (c == 'p') {
-                        player.togglePause();
-                    } else if (c == 'n') {
-                        // 랜덤 화면으로 이동 (raw 모드 정리 후)
-                        player.stop();
-                        safeReset(term);
-                        safeClose(term, reader);
-                        Layout.clear();
-                        return ViewId.RANDOM;
-                    } else if (c == 's') {  // ★ 저장 처리
-                        if (session == null || session.getUser() == null) {
-                            wprintln(term, "로그인이 필요합니다.");
-                            continue;
-                        }
-
-                        // DB에 아직 없으면 먼저 넣고 music_no 확보
-                        if (musicNo <= 0) {
-                            try {
-                                musicNo = new TrackDao().findOrInsert(title, artist, album, url);
-                            } catch (Exception ex) {
-                                wprintln(term, "저장 준비 중 오류가 발생했습니다. (tb_music 등록 실패)");
-                                continue;
+                    // --- 키 입력 처리(논블로킹) ---
+                    int ch = reader.read(120);
+                    if (ch != -1) {
+                        char c = Character.toLowerCase((char) ch);
+                        if (c == 'p') {
+                            player.togglePause();
+                        } else if (c == 'n') {
+                            cleanupAndClear(term, player);
+                            return ViewId.RANDOM;
+                        } else if (c == 'b') {
+                            cleanupAndClear(term, player);
+                            return ViewId.MAIN_MENU;
+                        } else if (c == 's') {
+                            // 저장
+                            if (session == null || session.getUser() == null) {
+                                term.writer().println("로그인이 필요합니다.");
+                                term.writer().flush();
+                            } else {
+                                if (musicNo <= 0) {
+                                    try {
+                                        musicNo = new TrackDao().findOrInsert(title, artist, album, url);
+                                    } catch (Exception ex) {
+                                        term.writer().println("tb_music 등록 실패");
+                                        term.writer().flush();
+                                        continue;
+                                    }
+                                }
+                                try {
+                                    String userId = session.getUser().getUserId();
+                                    PlaylistController.saveMusicToPlaylist(userId, musicNo);
+                                    term.writer().println("✓ 플레이리스트에 저장되었습니다.");
+                                    term.writer().flush();
+                                } catch (Exception ex) {
+                                    term.writer().println("저장 중 오류");
+                                    term.writer().flush();
+                                }
                             }
                         }
-
-                        // 확보된 music_no로 저장 실행
-                        try {
-                            String userId = session.getUser().getUserId();
-                            PlaylistController.saveMusicToPlaylist(userId, musicNo);
-                            wprintln(term, "✓ 플레이리스트에 저장되었습니다.");
-                        } catch (Exception ex) {
-                            wprintln(term, "저장 중 오류가 발생했습니다.");
-                        }
                     }
-                } // while
+
+                    // --- EQ/Progress 갱신 (120ms 주기) ---
+                    long now = System.currentTimeMillis();
+                    if (now - lastDraw >= 120) {
+                        lastDraw = now;
+
+                        long elapsed = Math.min(now - start, TIMEOUT_MS);
+                        int  fill    = (int) (BAR_W * elapsed / (double) TIMEOUT_MS);
+                        String bar   = "▇".repeat(fill) + "-".repeat(Math.max(0, BAR_W - fill));
+
+                        StringBuilder eq = new StringBuilder();
+                        eq.append("│");
+                        for (int i = 0; i < EQ_N; i++) {
+                            int lv = 1 + rand.nextInt(8);
+                            eq.append(LV[lv]);
+                        }
+                        eq.append("│");
+
+                        // 앵커 복원 → 2줄 위로(= EQ/Progress 자리) → 두 줄 덮어쓰기 → 다시 앵커 저장
+                        term.writer().print("\u001B[u");
+                        term.writer().print("\u001B[2A");
+                        term.writer().print("\r");
+                        term.writer().println(eq.toString());
+                        term.writer().print("\r");
+                        term.writer().println(mmss(elapsed) + " [" + bar + "] " + mmss(TIMEOUT_MS));
+                        term.writer().print("\u001B[s");
+                        term.writer().flush();
+                    }
+                }
+
+                // 타임아웃(자동 전환)
+                cleanupAndClear(term, player);
+                return ViewId.RANDOM;
+
             } catch (Exception ignore) {
+                // 터미널 문제 시, 단순 대기 후 랜덤으로
                 try {
                     Thread.sleep(Math.max(0, TIMEOUT_MS - (System.currentTimeMillis() - start)));
                 } catch (InterruptedException ignored) {}
-            } finally {
-                // raw 모드/스타일 정리 + 터미널 닫기
-                safeReset(term);
-                safeClose(term, reader);
+                return ViewId.RANDOM;
             }
-
-            // 자동 전환 (미리듣기 끝)
-            player.stop();
-            Layout.clear();
-            return ViewId.RANDOM;
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // 헬퍼들
-    // ─────────────────────────────────────────────────────────────
-
-    /** raw 모드에서 안전하게 한 줄 출력 */
-    private static void wprintln(Terminal term, String msg) {
+    // 화면 전환 전, 재생 중지 + JLine로 화면 초기화
+    private static void cleanupAndClear(Terminal term, PlayerController player) {
+        try { player.stop(); } catch (Exception ignore) {}
         try {
-            if (term != null) {
-                term.writer().println(msg);
-                term.writer().flush();
-            } else {
-                System.out.println(msg);
-            }
+            term.puts(InfoCmp.Capability.clear_screen);
+            term.writer().print("\u001B[0m");
+            term.writer().print("\u001B[?25h"); // 커서 보이기
+            term.flush();
         } catch (Exception ignore) {}
-    }
-
-    /** ANSI 스타일 리셋 */
-    private static void safeReset(Terminal term) {
-        try {
-            if (term != null) {
-                term.writer().print("\u001B[0m");
-                term.writer().flush();
-            }
-        } catch (Exception ignore) {}
-    }
-
-    /** 터미널/리더 안전 종료 */
-    private static void safeClose(Terminal term, NonBlockingReader reader) {
-        try { if (reader != null) reader.close(); } catch (Exception ignore) {}
-        try { if (term != null) term.close(); } catch (Exception ignore) {}
     }
 
     private static void printResults(List<SearchedMusicDTO> results) {
@@ -203,4 +218,9 @@ public class SearchView implements Screen {
     }
 
     private static String nn(String s) { return s == null ? "" : s; }
+
+    private static String mmss(long ms) {
+        long s = ms / 1000;
+        return String.format("%02d:%02d", s / 60, s % 60);
+    }
 }
